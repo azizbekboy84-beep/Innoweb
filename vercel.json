@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "env": {
+    "NODE_VERSION": "18.17.0"
+  },
+  "crons": [
+    {
+      "path": "/api/cron/generate",
+      "schedule": "0 7-19 * * *"
+    },
+    {
+      "path": "/api/cron/telegram",
+      "schedule": "30 7-19 * * *"
+    }
+  ]
+}

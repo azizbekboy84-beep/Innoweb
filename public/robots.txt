@@ -1,0 +1,15 @@
+# Innoweb.uz Robots.txt
+
+User-agent: *
+Allow: /
+
+# Disallow admin pages
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://innoweb.uz/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 0
