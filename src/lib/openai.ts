@@ -1,16 +1,26 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-if (!process.env.GEMINI_API_KEY) {
-  console.warn('⚠️ GEMINI_API_KEY is not set');
-}
+let genAI: GoogleGenerativeAI | null = null;
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'demo-key');
+function getGenAI() {
+  if (!genAI) {
+    if (!process.env.GEMINI_API_KEY) {
+      console.warn('⚠️ GEMINI_API_KEY is not set');
+      // Use demo key as fallback to prevent build errors
+      genAI = new GoogleGenerativeAI('demo-key');
+    } else {
+      genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    }
+  }
+  return genAI;
+}
 
 export const openai = {
   chat: {
     completions: {
       create: async (options: any) => {
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+        const ai = getGenAI();
+        const model = ai.getGenerativeModel({ model: 'gemini-pro' });
         
         const prompt = options.messages
           .map((m: any) => `${m.role}: ${m.content}`)

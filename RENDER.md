@@ -1,5 +1,19 @@
 # 🚀 Render.com Deploy Guide
 
+## ⚡ Quick Troubleshooting
+
+### 502 Bad Gateway?
+1. **Check Logs:** Render Dashboard → Logs
+2. **Required ENV vars:** DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, GEMINI_API_KEY
+3. **Run Migration:** `npx prisma db push` in Shell
+4. **Wait 1-2 min** if free tier (sleep mode waking up)
+
+### Build Failed?
+- **Missing GEMINI_API_KEY:** Normal, just set in Environment (runtime only)
+- **Check:** Render Dashboard → Environment → Add all required variables
+
+---
+
 ## 📋 Talab qilinadigan xizmatlar
 
 ### 1. **Web Service** - Next.js ilovasi
@@ -42,23 +56,25 @@ Start Command: npm start
 ```
 
 #### Environment Variables:
-Quyidagilarni qo'shing:
+📝 **To'liq ro'yxat:** `.env.render.example` faylini ko'ring
+
+**Minimal kerakli variables:**
 
 ```env
-# Node
-NODE_VERSION=18.17.0
+# Node (LTS versiya)
+NODE_VERSION=20.11.0
 
-# Database (Render'dan olgan URL)
+# Database (Render PostgreSQL - INTERNAL URL ishlatilishi shart)
 DATABASE_URL=postgresql://innoweb_user:password@host/innoweb
 
-# NextAuth
+# NextAuth (Security - ALBATTA kerak)
 NEXTAUTH_URL=https://innoweb-uz.onrender.com
 NEXTAUTH_SECRET=generate-random-secret-32-chars
 
-# Google Gemini AI
+# Google Gemini AI (Chatbot uchun)
 GEMINI_API_KEY=AIzaSy...
 
-# Telegram
+# Telegram (Optional - auto-post uchun)
 TELEGRAM_BOT_TOKEN=7123456789:AAH...
 TELEGRAM_CHANNEL_ID=@Innoweb_uz
 TELEGRAM_ADMIN_CHAT_ID=123456789
@@ -66,9 +82,14 @@ TELEGRAM_ADMIN_CHAT_ID=123456789
 # Admin
 ADMIN_EMAIL=akramjon10000@gmail.com
 
-# Cron Secret
+# Cron Secret (Optional - scheduled tasks uchun)
 CRON_SECRET=generate-random-secret
 ```
+
+**⚠️ MUHIM:**
+- `DATABASE_URL` - **INTERNAL** URL ishlatilishi shart (External emas!)
+- `NEXTAUTH_SECRET` - `openssl rand -base64 32` bilan generate qiling
+- `NEXTAUTH_URL` - Domain bilan mos kelishi kerak
 
 #### Auto-Deploy:
 - ✅ **Auto-Deploy** - Enable
@@ -180,6 +201,72 @@ Parol: Innoweb2025!
 
 ## 🐛 10. Troubleshooting
 
+### 502 Bad Gateway - Service Crashes at Runtime:
+**Muammo:** Deploy muvaffaqiyatli, lekin sayt ochilmayapti (502 xatosi)
+
+**📊 Diagnostika Tartibi:**
+
+```
+502 Error?
+    ↓
+1. Logs tekshirish (Render → Logs)
+    ↓
+2. Environment Variables bormi?
+    ├─ Yo'q → Qo'shish (pastdagi ro'yxat)
+    └─ Ha → 3-qadamga o'tish
+    ↓
+3. Database ulanganmi?
+    ├─ Yo'q → Migration: npx prisma db push
+    └─ Ha → 4-qadamga o'tish
+    ↓
+4. Free tier sleep mode?
+    ├─ Ha → 1-2 daqiqa kutish
+    └─ Yo'q → 5-qadamga o'tish
+    ↓
+5. Clear cache & redeploy
+```
+
+**✅ Yechimlar (tartib bilan):**
+
+**1️⃣ Environment Variables tekshirish:**
+```
+Render Dashboard → Web Service → Environment
+```
+**ALBATTA kerak bo'lgan 4 ta variable:**
+- ✅ `DATABASE_URL` - PostgreSQL URL (**INTERNAL URL**)
+- ✅ `NEXTAUTH_SECRET` - Random 32 char string
+- ✅ `NEXTAUTH_URL` - https://your-app.onrender.com
+- ✅ `GEMINI_API_KEY` - Google AI API key
+
+**2️⃣ Database Migration:**
+```bash
+# Render Shell'da (Shell tab):
+npx prisma db push
+```
+Bu database tables yaratadi.
+
+**3️⃣ Logs tekshirish:**
+```
+Render Dashboard → Web Service → Logs
+```
+Xatolarni qidiring:
+- ❌ `PrismaClientInitializationError` → DATABASE_URL xato
+- ❌ `NEXTAUTH_SECRET is not configured` → Env var qo'shish
+- ❌ `ECONNREFUSED` → Database offline
+
+**4️⃣ Service Restart:**
+```
+Render Dashboard → Manual Deploy → Clear build cache & deploy
+```
+
+### Build xatosi - Environment Variables:
+**Muammo:** `GEMINI_API_KEY is not set in environment variables`
+
+**Yechim:** 
+- Environment variables faqat runtime'da kerak, build vaqtida emas
+- Kod lazy-loading pattern ishlatadi (runtime initialization)
+- Render Dashboard → **Environment** → GEMINI_API_KEY qo'shing
+
 ### Build xatosi:
 ```bash
 # Render Shell'da:
@@ -195,6 +282,13 @@ npx prisma generate
 # Prisma push:
 npx prisma db push
 ```
+
+### Common Issues Checklist:
+- [ ] DATABASE_URL to'g'ri formatda (postgresql://...)
+- [ ] NEXTAUTH_SECRET belgilangan (32+ chars)
+- [ ] NEXTAUTH_URL https:// bilan boshlanadi
+- [ ] Database migration bajarilgan
+- [ ] Free tier sleep mode'dan uyg'onish (1-2 daqiqa kutish)
 
 ### Logs ko'rish:
 - Render Dashboard → Web Service → **Logs**

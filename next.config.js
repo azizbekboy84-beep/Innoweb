@@ -8,9 +8,15 @@ const nextConfig = {
       },
     ],
   },
+  // Server actions configuration for production
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3000'],
+      allowedOrigins: [
+        'localhost:3000',
+        '*.onrender.com',
+        'innoweb.uz',
+        'www.innoweb.uz'
+      ],
     },
   },
 }
