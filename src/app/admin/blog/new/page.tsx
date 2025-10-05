@@ -58,11 +58,13 @@ export default function NewBlogPage() {
         alert('✅ Maqola muvaffaqiyatli saqlandi!');
         router.push('/admin/blog');
       } else {
-        setError(data.error || 'Xatolik yuz berdi');
+        const errorMsg = data.error || data.details || 'Xatolik yuz berdi';
+        console.error('API Error:', data);
+        setError(errorMsg);
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('Server bilan bog\'lanishda xatolik');
+      setError('Server bilan bog\'lanishda xatolik. Database ulanganligini tekshiring.');
     } finally {
       setLoading(false);
     }

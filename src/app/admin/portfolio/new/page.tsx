@@ -29,15 +29,22 @@ export default function NewPortfolioPage() {
     setError('');
 
     try {
+      // Auto-fill Russian fields if empty
+      const payload = {
+        ...formData,
+        titleRu: formData.titleRu || formData.title,
+        descriptionRu: formData.descriptionRu || formData.description,
+        images: [formData.image],
+        technologies: formData.technologies 
+          ? formData.technologies.split(',').map((t) => t.trim()).filter(t => t)
+          : [],
+        tags: [],
+      };
+
       const response = await fetch('/api/admin/portfolio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          images: [formData.image],
-          technologies: formData.technologies.split(',').map((t) => t.trim()),
-          tags: [],
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -46,11 +53,13 @@ export default function NewPortfolioPage() {
         alert('✅ Loyiha muvaffaqiyatli saqlandi!');
         router.push('/admin/portfolio');
       } else {
-        setError(data.error || 'Xatolik yuz berdi');
+        const errorMsg = data.error || data.details || 'Xatolik yuz berdi';
+        console.error('API Error:', data);
+        setError(errorMsg);
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('Server bilan bog\'lanishda xatolik');
+      setError('Server bilan bog\'lanishda xatolik. Database ulanganligini tekshiring.');
     } finally {
       setLoading(false);
     }
